@@ -1,0 +1,47 @@
+---
+ - hosts: webserver
+   become: yes
+   become_user: ubuntu
+   vars:
+     bucketname: manishbucket9898
+   tasks:
+     - name: Create new bucket
+       aws_s3:
+         bucket: "{{ bucketname }}"
+         mode: create
+         region: us-east-1
+
+     - name: coping war file for backup
+       copy:
+         src: /var/lib/jenkins/workspace/test3/webapp/target/webapp.war
+         dest: /home/ubuntu/playbooks/backup/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.war
+
+     - name: convert .war file into zip format
+       command: "mv /home/ubuntu/playbooks/backup/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.war /home/ubuntu/playbooks/backup/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip"
+
+     - name: uploading zip backup file to s3 bucket
+       aws_s3:
+         bucket: "{{ bucketname }}"
+         object: backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip
+         src: "/home/ubuntu/playbooks/backup/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip"
+         mode: put
+
+     - name: downloading backup file to local machine
+       aws_s3:
+         bucket: "{{ bucketname }}"
+         object: backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip
+         dest: "/home/ubuntu/playbooks/download/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip"
+         mode: get
+
+     - name: convert zip format to orignal .war format
+       command: "mv /home/ubuntu/playbooks/download/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip /home/ubuntu/playbooks/download/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.war"
+
+     - name: copy war into tomcat servers
+       copy:
+         src: /home/ubuntu/playbooks/download/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.war
+         dest: /opt/tomcat/webapps/webapp.war
+       notify: restart tomcat
+
+   handlers:
+     - name: restart tomcat
+       command: "sudo systemctl restart tomcat"
