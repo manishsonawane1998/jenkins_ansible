@@ -27,7 +27,7 @@
      - name: coping war file for backup
        copy:
          src: /var/lib/jenkins/workspace/test3/webapp/target/webapp.war
-         dest: /home/ubuntu/playbooks/backup/backup-{{ '%Y-%m-%d  %H:%M:%S' | strftime }}.war
+         dest: "/home/ubuntu/playbooks/backup/backup-{{ '%Y-%m-%d-%H:%M:%S' | strftime }}.war"
 
      - name: Sleep for 5 seconds and timeout
        wait_for:
