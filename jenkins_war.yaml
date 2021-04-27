@@ -11,13 +11,28 @@
          mode: create
          region: us-east-1
 
+     - name: Sleep for 5 seconds and timeout
+       wait_for:
+         delay: 5
+         timeout: 0
+
      - name: coping war file for backup
        copy:
          src: /var/lib/jenkins/workspace/test3/webapp/target/webapp.war
          dest: /home/ubuntu/playbooks/backup/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.war
 
+     - name: Sleep for 5 seconds and timeout
+         wait_for:
+           delay: 5
+           timeout: 0
+
      - name: convert .war file into zip format
        command: "mv /home/ubuntu/playbooks/backup/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.war /home/ubuntu/playbooks/backup/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip"
+
+     - name: Sleep for 5 seconds and timeout
+         wait_for:
+           delay: 5
+           timeout: 0
 
      - name: uploading zip backup file to s3 bucket
        aws_s3:
@@ -26,6 +41,11 @@
          src: "/home/ubuntu/playbooks/backup/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip"
          mode: put
 
+     - name: Sleep for 5 seconds and timeout
+         wait_for:
+           delay: 5
+           timeout: 0
+
      - name: downloading backup file to local machine
        aws_s3:
          bucket: "{{ bucketname }}"
@@ -33,8 +53,18 @@
          dest: "/home/ubuntu/playbooks/download/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip"
          mode: get
 
+     - name: Sleep for 5 seconds and timeout
+         wait_for:
+           delay: 5
+           timeout: 0
+
      - name: convert zip format to orignal .war format
        command: "mv /home/ubuntu/playbooks/download/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip /home/ubuntu/playbooks/download/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.war"
+
+     - name: Sleep for 5 seconds and timeout
+         wait_for:
+           delay: 5
+           timeout: 0
 
      - name: copy war into tomcat servers
        copy:
