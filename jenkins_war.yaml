@@ -5,6 +5,9 @@
    vars:
      bucketname: manishbucket9898
    tasks:
+     - set_fact:
+         filename: "{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}"
+
      - name: Create new bucket
        aws_s3:
          bucket: "{{ bucketname }}"
@@ -19,7 +22,7 @@
        wait_for:
          delay: 5
          timeout: 0
-         
+
      - name: printing current date and time
        debug:
          msg: "{{ '%Y-%m-%d  %H:%M:%S' | strftime }}"
@@ -27,7 +30,7 @@
      - name: coping war file for backup
        copy:
          src: /var/lib/jenkins/workspace/test3/webapp/target/webapp.war
-         dest: "/home/ubuntu/playbooks/backup/backup-{{ '%Y-%m-%d-%H:%M:%S' | strftime }}.war"
+         dest: "/home/ubuntu/playbooks/backup/backup-{{ filename }}.war"
 
      - name: Sleep for 5 seconds and timeout
        wait_for:
@@ -39,7 +42,7 @@
          msg: "{{ '%Y-%m-%d  %H:%M:%S' | strftime }}"
 
      - name: convert .war file into zip format
-       command: "mv /home/ubuntu/playbooks/backup/backup-{{ '%Y-%m-%d-%H:%M:%S' | strftime }}.war /home/ubuntu/playbooks/backup/backup-{{ '%Y-%m-%d-%H:%M:%S' | strftime }}.zip"
+       command: "mv /home/ubuntu/playbooks/backup/backup-{{ filename }}.war /home/ubuntu/playbooks/backup/backup-{{ filename }}.zip"
 
      - name: Sleep for 5 seconds and timeout
        wait_for:
@@ -53,8 +56,8 @@
      - name: uploading zip backup file to s3 bucket
        aws_s3:
          bucket: "{{ bucketname }}"
-         object: backup-{{ '%Y-%m-%d-%H:%M:%S' | strftime }}.zip
-         src: "/home/ubuntu/playbooks/backup/backup-{{ '%Y-%m-%d-%H:%M:%S' | strftime }}.zip"
+         object: backup-{{ filename }}.zip
+         src: "/home/ubuntu/playbooks/backup/backup-{{ filename }}.zip"
          mode: put
 
      - name: Sleep for 5 seconds and timeout
@@ -69,8 +72,8 @@
      - name: downloading backup file to local machine
        aws_s3:
          bucket: "{{ bucketname }}"
-         object: backup-{{ '%Y-%m-%d  %H:%M:%S' | strftime }}.zip
-         dest: "/home/ubuntu/playbooks/download/backup-{{ '%Y-%m-%d-%H:%M:%S' | strftime }}.zip"
+         object: backup-{{ filename }}.zip
+         dest: "/home/ubuntu/playbooks/download/backup-{{ filename }}.zip"
          mode: get
 
      - name: Sleep for 5 seconds and timeout
@@ -83,7 +86,7 @@
          msg: "{{ '%Y-%m-%d  %H:%M:%S' | strftime }}"
 
      - name: convert zip format to orignal .war format
-       command: "mv /home/ubuntu/playbooks/download/backup-{{ '%Y-%m-%d-%H:%M:%S' | strftime }}.zip /home/ubuntu/playbooks/download/backup-{{ '%Y-%m-%d-%H:%M:%S' | strftime }}.war"
+       command: "mv /home/ubuntu/playbooks/download/backup-{{ filename }}.zip /home/ubuntu/playbooks/download/backup-{{ filename }}.war"
 
      - name: Sleep for 5 seconds and timeout
        wait_for:
@@ -96,7 +99,7 @@
 
      - name: copy war into tomcat servers
        copy:
-         src: /home/ubuntu/playbooks/download/backup{{ '%Y-%m-%d-%H:%M:%S' | strftime }}.war
+         src: /home/ubuntu/playbooks/download/backup-{{ filename }}.war
          dest: /opt/tomcat/webapps/webapp.war
        notify: restart tomcat
 
