@@ -27,7 +27,7 @@
      - name: coping war file for backup
        copy:
          src: /var/lib/jenkins/workspace/test3/webapp/target/webapp.war
-         dest: /home/ubuntu/playbooks/backup/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.war
+         dest: /home/ubuntu/playbooks/backup/backup-{{ '%Y-%m-%d  %H:%M:%S' | strftime }}.war
 
      - name: Sleep for 5 seconds and timeout
        wait_for:
@@ -39,7 +39,7 @@
          msg: "{{ '%Y-%m-%d  %H:%M:%S' | strftime }}"
 
      - name: convert .war file into zip format
-       command: "mv /home/ubuntu/playbooks/backup/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.war /home/ubuntu/playbooks/backup/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip"
+       command: "mv /home/ubuntu/playbooks/backup/backup-{{ '%Y-%m-%d  %H:%M:%S' | strftime }}.war /home/ubuntu/playbooks/backup/backup-{{ '%Y-%m-%d  %H:%M:%S' | strftime }}.zip"
 
      - name: Sleep for 5 seconds and timeout
        wait_for:
@@ -53,8 +53,8 @@
      - name: uploading zip backup file to s3 bucket
        aws_s3:
          bucket: "{{ bucketname }}"
-         object: backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip
-         src: "/home/ubuntu/playbooks/backup/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip"
+         object: backup-{{ '%Y-%m-%d  %H:%M:%S' | strftime }}.zip
+         src: "/home/ubuntu/playbooks/backup/backup-{{ '%Y-%m-%d  %H:%M:%S' | strftime }}.zip"
          mode: put
 
      - name: Sleep for 5 seconds and timeout
@@ -69,8 +69,8 @@
      - name: downloading backup file to local machine
        aws_s3:
          bucket: "{{ bucketname }}"
-         object: backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip
-         dest: "/home/ubuntu/playbooks/download/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip"
+         object: backup-{{ '%Y-%m-%d  %H:%M:%S' | strftime }}.zip
+         dest: "/home/ubuntu/playbooks/download/backup-{{ '%Y-%m-%d  %H:%M:%S' | strftime }}.zip"
          mode: get
 
      - name: Sleep for 5 seconds and timeout
@@ -83,7 +83,7 @@
          msg: "{{ '%Y-%m-%d  %H:%M:%S' | strftime }}"
 
      - name: convert zip format to orignal .war format
-       command: "mv /home/ubuntu/playbooks/download/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.zip /home/ubuntu/playbooks/download/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.war"
+       command: "mv /home/ubuntu/playbooks/download/backup-{{ '%Y-%m-%d  %H:%M:%S' | strftime }}.zip /home/ubuntu/playbooks/download/backup-{{ '%Y-%m-%d  %H:%M:%S' | strftime }}.war"
 
      - name: Sleep for 5 seconds and timeout
        wait_for:
@@ -96,7 +96,7 @@
 
      - name: copy war into tomcat servers
        copy:
-         src: /home/ubuntu/playbooks/download/backup-{{ ansible_date_time.date }}-{{ ansible_date_time.epoch }}.war
+         src: /home/ubuntu/playbooks/download/backup-{{ '%Y-%m-%d  %H:%M:%S' | strftime }}.war
          dest: /opt/tomcat/webapps/webapp.war
        notify: restart tomcat
 
