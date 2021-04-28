@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+    environment {
+        PATH = "/opt/maven/bin:$PATH"
+    }
+    stages {
+        stage('SCM clone') {
+            steps {
+                git 'https://github.com/manishsonawane1998/hello-world.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh "mvn clean install"
+            }
+        }
+        stage('cloning playbook') {
+            steps {
+                git 'https://github.com/manishsonawane1998/jenkins_ansible.git'
+            }
+        }
+        stage('running playbook on target') {
+            steps {
+                ansiblePlaybook become: true, becomeUser: 'root', credentialsId: 'ubuntu_user', disableHostKeyChecking: true, installation: 'ansible', inventory: 'hosts.inv', playbook: 'jenkins_war.yaml'
+            }
+        }
+    }
+}
