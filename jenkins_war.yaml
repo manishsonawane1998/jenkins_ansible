@@ -14,44 +14,13 @@
          mode: create
          region: us-east-1
 
-     - name: printing current date and time
-       debug:
-         msg: "{{ '%Y-%m-%d  %H:%M:%S' | strftime }}"
-
-     - name: Sleep for 5 seconds and timeout
-       wait_for:
-         delay: 5
-         timeout: 0
-
-     - name: printing current date and time
-       debug:
-         msg: "{{ '%Y-%m-%d  %H:%M:%S' | strftime }}"
-
      - name: coping war file for backup
        copy:
          src: /var/lib/jenkins/workspace/test3/webapp/target/webapp.war
          dest: "/home/ubuntu/playbooks/backup/backup-{{ filename }}.war"
 
-     - name: Sleep for 5 seconds and timeout
-       wait_for:
-         delay: 5
-         timeout: 0
-
-     - name: printing current date and time
-       debug:
-         msg: "{{ '%Y-%m-%d  %H:%M:%S' | strftime }}"
-
      - name: convert .war file into zip format
        command: "mv /home/ubuntu/playbooks/backup/backup-{{ filename }}.war /home/ubuntu/playbooks/backup/backup-{{ filename }}.zip"
-
-     - name: Sleep for 5 seconds and timeout
-       wait_for:
-         delay: 5
-         timeout: 0
-
-     - name: printing current date and time
-       debug:
-         msg: "{{ '%Y-%m-%d  %H:%M:%S' | strftime }}"
 
      - name: uploading zip backup file to s3 bucket
        aws_s3:
@@ -60,15 +29,6 @@
          src: "/home/ubuntu/playbooks/backup/backup-{{ filename }}.zip"
          mode: put
 
-     - name: Sleep for 5 seconds and timeout
-       wait_for:
-         delay: 5
-         timeout: 0
-
-     - name: printing current date and time
-       debug:
-         msg: "{{ '%Y-%m-%d  %H:%M:%S' | strftime }}"
-
      - name: downloading backup file to local machine
        aws_s3:
          bucket: "{{ bucketname }}"
@@ -76,26 +36,8 @@
          dest: "/home/ubuntu/playbooks/download/backup-{{ filename }}.zip"
          mode: get
 
-     - name: Sleep for 5 seconds and timeout
-       wait_for:
-         delay: 5
-         timeout: 0
-
-     - name: printing current date and time
-       debug:
-         msg: "{{ '%Y-%m-%d  %H:%M:%S' | strftime }}"
-
      - name: convert zip format to orignal .war format
        command: "mv /home/ubuntu/playbooks/download/backup-{{ filename }}.zip /home/ubuntu/playbooks/download/backup-{{ filename }}.war"
-
-     - name: Sleep for 5 seconds and timeout
-       wait_for:
-         delay: 5
-         timeout: 0
-
-     - name: printing current date and time
-       debug:
-         msg: "{{ '%Y-%m-%d  %H:%M:%S' | strftime }}"
 
      - name: copy war into tomcat servers
        copy:
